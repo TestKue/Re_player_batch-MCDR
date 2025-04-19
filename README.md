@@ -1,5 +1,6 @@
 # PlayerBatch - MCDR假人批量操作插件
 
+![License](https://img.shields.io/badge/License-GPLv3-blue)
 ![MCDR](https://img.shields.io/badge/MCDR-2.1.0%2B-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
