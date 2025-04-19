@@ -1,0 +1,11 @@
+{
+    "id": "player_batch",
+    "version": "1.0.0",
+    "name": "PlayerBatch",
+    "author": "Eason120806",
+    "entrypoint": "player_batch",
+    "link": "https://example.com",
+    "dependencies": {
+        "mcdreforged": ">=2.0.0"
+    }
+}
