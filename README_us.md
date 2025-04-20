@@ -1,4 +1,4 @@
-# PlayerBatch - MCDR Fake Player Batch Operations Plugin
+# PlayerBatch - MCDR Batch Bot Management Plugin
 
 ![License](https://img.shields.io/badge/License-GPLv3-blue)
 ![MCDR](https://img.shields.io/badge/MCDR-2.1.0%2B-blue)
