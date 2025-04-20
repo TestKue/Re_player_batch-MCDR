@@ -2,7 +2,6 @@
 
 ![License](https://img.shields.io/badge/License-GPLv3-blue)
 ![MCDR](https://img.shields.io/badge/MCDR-2.1.0%2B-blue)
-![License](https://img.shields.io/badge/License-MIT-green)
 
 一个用于MCDReforged的假人批量操作插件，支持快速生成/控制多个假人，适配Carpet Mod等主流假人系统。
 
