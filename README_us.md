@@ -1,7 +1,7 @@
 # PlayerBatch - MCDR Fake Player Batch Operations Plugin
 
+![License](https://img.shields.io/badge/License-GPLv3-blue)
 ![MCDR](https://img.shields.io/badge/MCDR-2.1.0%2B-blue)
-![License](https://img.shields.io/badge/License-MIT-green)
 
 A MCDReforged plugin for batch operations on fake players, supporting quick creation/control of multiple fake players. Compatible with mainstream fake player systems like Carpet Mod.
 
