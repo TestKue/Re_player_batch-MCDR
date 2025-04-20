@@ -9,7 +9,7 @@
         "mcdreforged": ">=2.0.0"
     }
     "description": {
-        "zh_cn": "假人批量操作插件",
-        "en_us": "Dummy Batch Operations Plugin"
+        "zh_cn": "MCDR假人批量操作插件",
+        "en_us": "MCDR Batch Bot Management Plugin"
     },	
 }
