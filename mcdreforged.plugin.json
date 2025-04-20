@@ -6,8 +6,10 @@
     "entrypoint": "player_batch",
     "link": "https://github.com/Eason120806/player_batch-MCDR/",
     "dependencies": {
-	"zh_cn": "假人批量操作插件",
-        "en_us": "Dummy Batch Operations Plugin",
         "mcdreforged": ">=2.0.0"
     }
+    "description": {
+        "zh_cn": "假人批量操作插件",
+        "en_us": "Dummy Batch Operations Plugin"
+    },	
 }
