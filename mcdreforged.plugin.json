@@ -7,9 +7,9 @@
     "link": "https://github.com/Eason120806/player_batch-MCDR/",
     "dependencies": {
         "mcdreforged": ">=2.0.0"
-    }
+    },
     "description": {
         "zh_cn": "MCDR假人批量操作插件",
         "en_us": "MCDR Batch Bot Management Plugin"
-    },	
+    }
 }
