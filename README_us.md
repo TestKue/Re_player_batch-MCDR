@@ -29,11 +29,11 @@ A MCDReforged plugin for batch operations on fake players, supporting quick crea
 
 ### Straight line generation command format
 ```text
-!!plb li <名称> <起始> <结束> <方向> <间隔> <动作>
-!!playerbatch li <名称> <起始> <结束> <方向> <间隔> <动作>
+!!plb li <name> <start_id> <end_id> <direction> <interval> <action_parameters>
+!!playerbatch li <name> <start_id> <end_id> <direction> <interval> <action_parameters>
 ```
 
 ### Square Array command format
 ```text
-!!plb re <名称> <起始> <结束> <方向1> <方向2> <间隔> <动作>
-!!playerbatch re <名称> <起始> <结束> <方向1> <方向2> <间隔> <动作>
+!!plb re <name> <start_id> <end_id> <direction1> <direction2> <interval> <action_parameters>
+!!playerbatch re <name> <start_id> <end_id> <direction1> <direction2> <interval> <action_parameters>
