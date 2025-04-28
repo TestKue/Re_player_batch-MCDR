@@ -23,17 +23,17 @@ A MCDReforged plugin for batch operations on fake players, supporting quick crea
 
 ### Basic command format
 ```text
-!!plb <name> <start_id> <end_id> <action_parameters>
-!!playerbatch <name> <start_id> <end_id> <action_parameters>
+!!plb <name> <start> <end> <action_args>
+!!playerbatch <name> <start> <end> <action_args>
 ```
 
 ### Straight line generation command format
 ```text
-!!plb li <name> <start_id> <end_id> <direction> <interval> <action_parameters>
-!!playerbatch li <name> <start_id> <end_id> <direction> <interval> <action_parameters>
+!!plb li <name> <start> <length> <direction> <interval>
+!!playerbatch li <name> <start> <length> <direction> <interval> 
 ```
 
 ### Square Array command format
 ```text
-!!plb re <name> <start_id> <end_id> <direction1> <direction2> <interval> <action_parameters>
-!!playerbatch re <name> <start_id> <end_id> <direction1> <direction2> <interval> <action_parameters>
+!!plb re <name> <start> <long> <width> <direction1> <direction2> <interval> 
+!!playerbatch re <name> <start> <long> <width> <direction1> <direction2> <interval>
