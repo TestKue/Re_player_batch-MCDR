@@ -28,32 +28,30 @@ class PlayerBatch:
                         Integer('start').then(
                             Integer('end').then(
                                 GreedyText('action_args').runs(self.process_command)
-                            )
                         )
                     )
+                )
                 ).then(
-                    Literal('li').then(
+                    Literal('l').then(  
                         QuotableText('name').then(
                             Integer('start').then(
-                                Integer('end').then(
+                                Integer('length').then(  
                                     QuotableText('direction').then(
-                                        Integer('interval').then(
-                                            GreedyText('action_args').runs(self.process_line_command)
-                                        )
-                                    )
+                                        Integer('interval').runs(self.process_line_command)
                                 )
                             )
                         )
                     )
+                )
                 ).then(
-                    Literal('re').then(
+                    Literal('s').then(  
                         QuotableText('name').then(
                             Integer('start').then(
-                                Integer('end').then(
-                                    QuotableText('direction1').then(
-                                        QuotableText('direction2').then(
-                                            Integer('interval').then(
-                                                GreedyText('action_args').runs(self.process_square_command)
+                                Integer('long').then(  
+                                    Integer('width').then(  
+                                        QuotableText('direction1').then(
+                                            QuotableText('direction2').then(
+                                                Integer('interval').runs(self.process_square_command)
                                             )
                                         )
                                     )
@@ -98,13 +96,13 @@ class PlayerBatch:
             '§6基础命令:',
             '§7!!plb <名称> <起始> <结束> <动作> §e- 批量操作假人',
             '§6直线生成:',
-            '§7!!plb li <名称> <起始> <结束> <方向> <间隔> <动作> §e- 沿指定方向生成直线排列假人',
+            '§7!!plb l <名称> <起始> <长度> <方向> <间隔> §e- 生成直线排列假人',
             '§e方向参数: §a+x, -x, +z, -z',
             '§6方形阵列:',
-            '§7!!plb re <名称> <起始> <结束> <方向1> <方向2> <间隔> <动作> §e- 生成二维排列假人',
+            '§7!!plb s <名称> <起始> <长> <宽> <方向1> <方向2> <间隔> §e- 生成二维排列假人',
             '§e示例:',
-            '§7!!plb li bot 1 5 +x 1 spawn §e- 生成bot1到bot5，每个向东间隔3格',
-            '§7!!plb re bot 1 4 +x +z 1 spawn §e- 生成bot1到bot4，在X/Z平面形成5格间距方阵',
+            '§7!!plb l bot 1 5 +x 1 §e- 生成bot1到bot5，每个向东间隔1格',
+            '§7!!plb s bot 1 2 3 +x +z 1 §e- 生成bot1到bot6，在X/Z平面形成2x3方阵',
         ]
         src.reply('\n'.join(help_msg))
 
@@ -147,14 +145,14 @@ class PlayerBatch:
         try:
             name = ctx['name']
             start = ctx['start']
-            end = ctx['end']
+            length = ctx['length']
             direction = ctx['direction']
             interval = ctx['interval']
-            action_args = ctx['action_args']
             base = self.config['base_name']
             
-            if start > end:
-                return src.reply('§c错误：起始值不能大于结束值')
+            if length < 1:
+                return src.reply('§c错误：长度必须≥1')
+            end = start + length - 1  
 
             axis, sign = self.parse_direction(direction)
             if axis is None:
@@ -168,12 +166,12 @@ class PlayerBatch:
                 else:
                     coord = f'~ ~ ~{offset}'
                 
-                full_action = f'{action_args} at {coord}' if 'at' not in action_args else action_args
+                full_action = 'spawn'
                 if src.is_player:
                     player_name = src.player
-                    cmd = f'/execute as {player_name} at @s run player {bot_name} {full_action}'
+                    cmd = f'/execute as {player_name} at @s positioned {coord} positioned over world_surface run player {bot_name} {full_action}'
                 else:
-                    cmd = f'/player {bot_name} {full_action}'
+                    cmd = f'/execute positioned {coord} positioned over world_surface run player {bot_name} {full_action}'
                 self.server.execute(cmd)
 
             src.reply(f'§a成功生成直线假人 {base}{name}[{start}-{end}]，方向 {direction} 间隔 {interval}')
@@ -186,26 +184,22 @@ class PlayerBatch:
         try:
             name = ctx['name']
             start = ctx['start']
-            end = ctx['end']
+            long = ctx['long']
+            width = ctx['width']
             dir1 = ctx['direction1']
             dir2 = ctx['direction2']
             interval = ctx['interval']
-            action_args = ctx['action_args']
             base = self.config['base_name']
             
-            if start > end:
-                return src.reply('§c错误：起始值不能大于结束值')
+            if long < 1 or width < 1:
+                return src.reply('§c错误：长和宽必须≥1')
+            total = long * width
+            end = start + total - 1  
 
             axis1, sign1 = self.parse_direction(dir1)
             axis2, sign2 = self.parse_direction(dir2)
             if None in [axis1, axis2]:
                 return src.reply(f'§c错误的方向参数：{dir1} 或 {dir2}')
-
-            total = end - start + 1
-            side_length = int(total ** 0.5)
-            if side_length ** 2 != total:
-                src.reply('§e警告：假人数量不是完全平方数')
-                side_length += 1
 
             for idx in range(total):
                 i = start + idx
@@ -213,8 +207,8 @@ class PlayerBatch:
                 
                 x_offset = 0
                 z_offset = 0
-                row = idx // side_length 
-                col = idx % side_length
+                row = idx // width  
+                col = idx % width
 
                 if axis1 == 'x':
                     x_offset += row * interval * sign1
@@ -227,13 +221,13 @@ class PlayerBatch:
                     z_offset += col * interval * sign2
 
                 coord = f'~{x_offset} ~ ~{z_offset}'
-                full_action = f'{action_args} at {coord}' if 'at' not in action_args else action_args
+                full_action = 'spawn'
                 
                 if src.is_player:
                     player_name = src.player
-                    cmd = f'/execute as {player_name} at @s run player {bot_name} {full_action}'
+                    cmd = f'/execute as {player_name} at @s positioned {coord} positioned over world_surface run player {bot_name} {full_action}'
                 else:
-                    cmd = f'/player {bot_name} {full_action}'
+                    cmd = f'/execute positioned {coord} positioned over world_surface run player {bot_name} {full_action}'
                 self.server.execute(cmd)
 
             src.reply(f'§a成功生成方阵假人 {base}{name}[{start}-{end}]，方向 {dir1}×{dir2} 间隔 {interval}')
