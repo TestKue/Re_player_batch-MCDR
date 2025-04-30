@@ -1,10 +1,13 @@
 from mcdreforged.api.all import *
 import os
 import json
+import time
+import threading
 
 DEFAULT_CONFIG = {
     'base_name': 'bot_',
-    'permission': 0
+    'permission': 0,
+    'interval': 1
 }
 
 class PlayerBatch:
@@ -80,6 +83,8 @@ class PlayerBatch:
                 self.config = {**DEFAULT_CONFIG, **json.load(f)}
                 if not isinstance(self.config['permission'], int) or self.config['permission'] < 0:
                     self.config['permission'] = 0
+                if not isinstance(self.config['interval'], int) or self.config['interval'] < 0:
+                    self.config['interval'] = 1
             self.save_config()
         except Exception as e:
             self.server.logger.error(f'§c配置加载失败: {e}')
@@ -103,8 +108,23 @@ class PlayerBatch:
             '§e示例:',
             '§7!!plb l bot 1 5 +x 1 §e- 生成bot1到bot5，每个向东间隔1格',
             '§7!!plb s bot 1 2 3 +x +z 1 §e- 生成bot1到bot6，在X/Z平面形成2x3方阵',
+            f'§a当前生成间隔: §e{self.config["interval"]}秒'
         ]
         src.reply('\n'.join(help_msg))
+
+    def __execute_commands(self, commands: list, src: CommandSource, reply_msg: str, use_interval: bool):
+        def task():
+            try:
+                for idx, cmd in enumerate(commands):
+                    if use_interval and idx > 0 and self.config['interval'] > 0:
+                        time.sleep(self.config['interval'])
+                    self.server.execute(cmd)
+                src.reply(reply_msg)
+            except Exception as e:
+                self.server.logger.error(f'§c命令执行出错: {str(e)}')
+                src.reply('§c命令执行失败，请查看日志')
+
+        threading.Thread(target=task, daemon=True).start()
 
     def process_command(self, src: CommandSource, ctx: dict):
         try:
@@ -117,6 +137,11 @@ class PlayerBatch:
             if start > end:
                 return src.reply('§c错误：起始值不能大于结束值')
 
+            is_spawn = action_args.strip().lower().startswith('spawn')
+            use_interval = is_spawn
+            interval_info = f'（间隔 {self.config["interval"]}秒）' if is_spawn else ''
+
+            commands = []
             for i in range(start, end + 1):
                 bot_name = f'{base}{name}{i}'
                 if src.is_player:
@@ -124,9 +149,14 @@ class PlayerBatch:
                     cmd = f'/execute as {player_name} at @s run player {bot_name} {action_args}'
                 else:
                     cmd = f'/player {bot_name} {action_args}'
-                self.server.execute(cmd)
-                
-            src.reply(f'§a已操作假人 {base}{name}[{start}-{end}] 的 {action_args} 指令')
+                commands.append(cmd)
+
+            self.__execute_commands(
+                commands,
+                src,
+                f'§a已操作假人 {base}{name}[{start}-{end}] 的 {action_args} 指令{interval_info}',
+                use_interval
+            )
 
         except Exception as e:
             self.server.logger.error(f'§c执行出错: {str(e)}')
@@ -158,6 +188,7 @@ class PlayerBatch:
             if axis is None:
                 return src.reply(f'§c错误的方向参数：{direction}')
 
+            commands = []
             for i in range(start, end + 1):
                 bot_name = f'{base}{name}{i}'
                 offset = (i - start) * interval * sign
@@ -172,9 +203,14 @@ class PlayerBatch:
                     cmd = f'/execute as {player_name} at @s positioned {coord} positioned over world_surface run player {bot_name} {full_action}'
                 else:
                     cmd = f'/execute positioned {coord} positioned over world_surface run player {bot_name} {full_action}'
-                self.server.execute(cmd)
+                commands.append(cmd)
 
-            src.reply(f'§a成功生成直线假人 {base}{name}[{start}-{end}]，方向 {direction} 间隔 {interval}')
+            self.__execute_commands(
+                commands,
+                src,
+                f'§a成功生成直线假人 {base}{name}[{start}-{end}]，方向 {direction} 间隔 {interval}格（命令间隔 {self.config["interval"]}秒）',
+                True  
+            )
 
         except Exception as e:
             self.server.logger.error(f'§c直线生成出错: {str(e)}')
@@ -201,6 +237,7 @@ class PlayerBatch:
             if None in [axis1, axis2]:
                 return src.reply(f'§c错误的方向参数：{dir1} 或 {dir2}')
 
+            commands = []
             for idx in range(total):
                 i = start + idx
                 bot_name = f'{base}{name}{i}'
@@ -228,9 +265,14 @@ class PlayerBatch:
                     cmd = f'/execute as {player_name} at @s positioned {coord} positioned over world_surface run player {bot_name} {full_action}'
                 else:
                     cmd = f'/execute positioned {coord} positioned over world_surface run player {bot_name} {full_action}'
-                self.server.execute(cmd)
+                commands.append(cmd)
 
-            src.reply(f'§a成功生成方阵假人 {base}{name}[{start}-{end}]，方向 {dir1}×{dir2} 间隔 {interval}')
+            self.__execute_commands(
+                commands,
+                src,
+                f'§a成功生成方阵假人 {base}{name}[{start}-{end}]，方向 {dir1}×{dir2} 间隔 {interval}格（命令间隔 {self.config["interval"]}秒）',
+                True  
+            )
 
         except Exception as e:
             self.server.logger.error(f'§c方阵生成出错: {str(e)}')
