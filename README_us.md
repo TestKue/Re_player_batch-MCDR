@@ -1,39 +1,64 @@
-# PlayerBatch - MCDR Batch Bot Management Plugin
+# PlayerBatch - MCDR Fake Player Batch Operation Plugin
+
+🎮 A MCDReforged-based plugin providing powerful Carpet fake player batch operation capabilities
 
 ![License](https://img.shields.io/badge/License-GPLv3-blue)
 ![MCDR](https://img.shields.io/badge/MCDR-2.1.0%2B-blue)
 
-A MCDReforged plugin for batch operations on fake players, supporting quick creation/control of multiple fake players. Compatible with mainstream fake player systems like Carpet Mod.
+## 📦 Features
 
-## Features
+- **Batch Basic Operations**: Control multiple fake players to execute commands simultaneously
+- **Smart Arrangement Generation**: Support linear/square formation generation
+- **Initialization Sequence**: Customized generation + action execution + automatic cleanup process
+- **Multi-dimensional Configuration**: Customizable naming rules and operation intervals
+- **Permission Management**: Control command permissions through config file
 
-- 🚀 **Batch Creation** - Quickly generate sequentially numbered fake players with simple commands
-- ⚡ **Action Execution** - Perform batch operations like attack/movement/removal
-- 🛠️ **Custom Configuration** - Flexible settings for name prefix and permission levels
-- 📊 **Real-time Feedback** - Instant operation results and error logging
-- 🔒 **Permission Control** - Multi-level OP permission management
+## 🛠️ Installation
 
-## Installation
+1. Ensure [MCDReforged] is installed
+2. Download latest `PlayerBatch.pyz`
+3. Place into MCDR's plugins directory
+4. Restart MCDR server
 
-1. Place `player_batch.pyz` into MCDR's `plugins` directory
-2. Restart MCDR server
-3. Configuration file `config/player_batch.json` will be auto-generated
+## ⚙️ Configuration
 
-## Usage
+Path: `config/player_batch.json`
 
-### Basic command format
+```json
+{
+    "base_name": "bot_",
+    "permission": 0,
+    "interval": 1.0
+}
+```
+## 🎯 Commands
+
+### Basic Commands
 ```text
-!!plb <name> <start> <end> <action_args>
-!!playerbatch <name> <start> <end> <action_args>
+!!plb <name> <start> <end> <action>
+!!playerbatch <name> <start> <end> <action>
 ```
 
-### Straight line generation command format
+### Linear Generation
 ```text
-!!plb li <name> <start> <length> <direction> <interval>
-!!playerbatch li <name> <start> <length> <direction> <interval> 
+!!plb l <name> <start> <length> <direction> <interval>
+!!playerbatch l <name> <start> <length> <direction> <interval>
 ```
 
-### Square Array command format
+### Square Formation Generation
 ```text
-!!plb re <name> <start> <long> <width> <direction1> <direction2> <interval> 
-!!playerbatch re <name> <start> <long> <width> <direction1> <direction2> <interval>
+!!plb s <name> <start> <length> <width> <direction1> <direction2> <interval>
+!!playerbatch s <name> <start> <length> <width> <direction1> <direction2> <interval>
+```
+
+### Initialization Sequence
+```text
+!!plb init <name> <start> <length> <interval1> <interval2> <x> <y> <z> <action>
+!!playerbatch init <name> <start> <length> <interval1> <interval2> <x> <y> <z> <action>
+```
+
+## ⚠️ Notes
+
+1. Requires Carpet Mod with fake player functionality
+2. Interval settings affect server performance - configure reasonably
+3. Fake player name format: Prefix + Custom name + Sequence number
