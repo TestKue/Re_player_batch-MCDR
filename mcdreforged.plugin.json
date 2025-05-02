@@ -1,6 +1,6 @@
 {
     "id": "player_batch",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "name": "PlayerBatch",
     "author": "Eason120806",
     "entrypoint": "player_batch",
