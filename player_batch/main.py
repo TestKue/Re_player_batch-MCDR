@@ -69,7 +69,13 @@ class PlayerBatch:
                                 Integer('length').then(
                                     Number('interval1').then(
                                         Number('interval2').then(
-                                            GreedyText('action').runs(self.process_init_command)
+                                            Number('x').then(
+                                                Number('y').then(
+                                                    Number('z').then(
+                                                        GreedyText('action').runs(self.process_init_command)
+                                                    )
+                                                )
+                                            )
                                         )
                                     )
                                 )
@@ -120,11 +126,11 @@ class PlayerBatch:
             '§6方形阵列:',
             '§7!!plb s <名称> <起始> <长> <宽> <方向1> <方向2> <间隔> §e- 生成二维排列假人',
             '§6初始化序列:',
-            '§7!!plb init <名称> <起始> <长度> <间隔1> <间隔2> <动作> §e- 生成假人并依次执行动作和退出，间隔控制',
+            '§7!!plb init <名称> <起始> <长度> <间隔1> <间隔2> <x> <y> <z> <动作> §e- 生成假人并依次执行动作和退出，间隔控制',
             '§e示例:',
             '§7!!plb l bot 1 5 +x 1 §e- 生成bot1到bot5，每个向东间隔1格',
             '§7!!plb s bot 1 2 3 +x +z 1 §e- 生成bot1到bot6，在X/Z平面形成2x3方阵',
-            '§7!!plb init bot 1 3 1 2 kill §e- 生成bot1-3，每个生成后立即kill，间隔1秒后退出，间隔2秒处理下一个',
+            '§7!!plb init bot 1 3 1 2 0 100 0 kill §e- 生成bot1-3在(0,100,0)，每个生成后立即kill，间隔1秒后退出，间隔2秒处理下一个',
             f'§a当前生成间隔: §e{self.config["interval"]}秒'
         ]
         src.reply('\n'.join(help_msg))
@@ -302,6 +308,9 @@ class PlayerBatch:
             length = ctx['length']
             interval1 = ctx['interval1']
             interval2 = ctx['interval2']
+            x = ctx['x']
+            y = ctx['y']
+            z = ctx['z']
             action = ctx['action'].strip()
             base = self.config['base_name']
             
@@ -311,12 +320,9 @@ class PlayerBatch:
 
             commands_with_waits = []
             for i in range(start, start + length):
+                player_name = src.player
                 bot_name = f'{base}{name}{i}'
-                if src.is_player:
-                    player_name = src.player
-                    spawn_cmd = f'/execute as {player_name} at @s run player {bot_name} spawn'
-                else:
-                    spawn_cmd = f'/player {bot_name} spawn'
+                spawn_cmd = f'/execute as {player_name} at @s positioned {x} {y} {z} run player {bot_name} spawn'
                 commands_with_waits.append( (spawn_cmd, 0) )
                 action_cmd = f'/player {bot_name} {action}'
                 commands_with_waits.append( (action_cmd, 0) )
