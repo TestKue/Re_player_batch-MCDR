@@ -62,6 +62,20 @@ class PlayerBatch:
                             )
                         )
                     )
+                ).then(
+                    Literal('init').then(
+                        QuotableText('name').then(
+                            Integer('start').then(
+                                Integer('length').then(
+                                    Number('interval1').then(
+                                        Number('interval2').then(
+                                            GreedyText('action').runs(self.process_init_command)
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
                 )
 
         for cmd in ['!!playerbatch', '!!plb']:
@@ -105,9 +119,12 @@ class PlayerBatch:
             '§e方向参数: §a+x, -x, +z, -z',
             '§6方形阵列:',
             '§7!!plb s <名称> <起始> <长> <宽> <方向1> <方向2> <间隔> §e- 生成二维排列假人',
+            '§6初始化序列:',
+            '§7!!plb init <名称> <起始> <长度> <间隔1> <间隔2> <动作> §e- 生成假人并依次执行动作和退出，间隔控制',
             '§e示例:',
             '§7!!plb l bot 1 5 +x 1 §e- 生成bot1到bot5，每个向东间隔1格',
             '§7!!plb s bot 1 2 3 +x +z 1 §e- 生成bot1到bot6，在X/Z平面形成2x3方阵',
+            '§7!!plb init bot 1 3 1 2 kill §e- 生成bot1-3，每个生成后立即kill，间隔1秒后退出，间隔2秒处理下一个',
             f'§a当前生成间隔: §e{self.config["interval"]}秒'
         ]
         src.reply('\n'.join(help_msg))
@@ -277,6 +294,55 @@ class PlayerBatch:
         except Exception as e:
             self.server.logger.error(f'§c方阵生成出错: {str(e)}')
             src.reply('§c方阵生成失败，请查看日志')
+
+    def process_init_command(self, src: CommandSource, ctx: dict):
+        try:
+            name = ctx['name']
+            start = ctx['start']
+            length = ctx['length']
+            interval1 = ctx['interval1']
+            interval2 = ctx['interval2']
+            action = ctx['action'].strip()
+            base = self.config['base_name']
+            
+            if length < 1:
+                return src.reply('§c错误：长度必须≥1')
+            end = start + length - 1
+
+            commands_with_waits = []
+            for i in range(start, start + length):
+                bot_name = f'{base}{name}{i}'
+                if src.is_player:
+                    player_name = src.player
+                    spawn_cmd = f'/execute as {player_name} at @s run player {bot_name} spawn'
+                else:
+                    spawn_cmd = f'/player {bot_name} spawn'
+                commands_with_waits.append( (spawn_cmd, 0) )
+                action_cmd = f'/player {bot_name} {action}'
+                commands_with_waits.append( (action_cmd, 0) )
+                commands_with_waits.append( (None, interval1) )
+                kill_cmd = f'/player {bot_name} kill'
+                commands_with_waits.append( (kill_cmd, 0) )
+                if i != end:
+                    commands_with_waits.append( (None, interval2) )
+
+            def task():
+                try:
+                    for cmd, wait_time in commands_with_waits:
+                        if cmd is not None:
+                            self.server.execute(cmd)
+                        if wait_time > 0:
+                            time.sleep(wait_time)
+                    src.reply(f'§a成功处理假人序列 {base}{name}[{start}-{end}]，动作间隔 {interval1}秒，循环间隔 {interval2}秒')
+                except Exception as e:
+                    self.server.logger.error(f'§c初始化命令执行出错: {str(e)}')
+                    src.reply('§c初始化命令执行失败，请查看日志')
+
+            threading.Thread(target=task, daemon=True).start()
+
+        except Exception as e:
+            self.server.logger.error(f'§c初始化命令解析出错: {str(e)}')
+            src.reply('§c命令格式错误，请检查参数')
 
 def on_load(server: PluginServerInterface, old):
     PlayerBatch(server).on_load()
