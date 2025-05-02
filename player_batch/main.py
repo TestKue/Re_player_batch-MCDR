@@ -7,7 +7,7 @@ import threading
 DEFAULT_CONFIG = {
     'base_name': 'bot_',
     'permission': 0,
-    'interval': 1
+    'interval': 1.0  
 }
 
 class PlayerBatch:
@@ -40,7 +40,7 @@ class PlayerBatch:
                             Integer('start').then(
                                 Integer('length').then(  
                                     QuotableText('direction').then(
-                                        Integer('interval').runs(self.process_line_command)
+                                        Number('interval').runs(self.process_line_command)  
                                 )
                             )
                         )
@@ -54,7 +54,7 @@ class PlayerBatch:
                                     Integer('width').then(  
                                         QuotableText('direction1').then(
                                             QuotableText('direction2').then(
-                                                Integer('interval').runs(self.process_square_command)
+                                                Number('interval').runs(self.process_square_command)  
                                             )
                                         )
                                     )
@@ -83,8 +83,8 @@ class PlayerBatch:
                 self.config = {**DEFAULT_CONFIG, **json.load(f)}
                 if not isinstance(self.config['permission'], int) or self.config['permission'] < 0:
                     self.config['permission'] = 0
-                if not isinstance(self.config['interval'], int) or self.config['interval'] < 0:
-                    self.config['interval'] = 1
+                if not isinstance(self.config['interval'], (int, float)) or self.config['interval'] < 0:
+                    self.config['interval'] = 1.0
             self.save_config()
         except Exception as e:
             self.server.logger.error(f'§c配置加载失败: {e}')
@@ -117,7 +117,7 @@ class PlayerBatch:
             try:
                 for idx, cmd in enumerate(commands):
                     if use_interval and idx > 0 and self.config['interval'] > 0:
-                        time.sleep(self.config['interval'])
+                        time.sleep(self.config['interval'])  
                     self.server.execute(cmd)
                 src.reply(reply_msg)
             except Exception as e:
@@ -177,7 +177,7 @@ class PlayerBatch:
             start = ctx['start']
             length = ctx['length']
             direction = ctx['direction']
-            interval = ctx['interval']
+            interval = ctx['interval'] 
             base = self.config['base_name']
             
             if length < 1:
@@ -224,7 +224,7 @@ class PlayerBatch:
             width = ctx['width']
             dir1 = ctx['direction1']
             dir2 = ctx['direction2']
-            interval = ctx['interval']
+            interval = ctx['interval']  
             base = self.config['base_name']
             
             if long < 1 or width < 1:
@@ -242,8 +242,8 @@ class PlayerBatch:
                 i = start + idx
                 bot_name = f'{base}{name}{i}'
                 
-                x_offset = 0
-                z_offset = 0
+                x_offset = 0.0  
+                z_offset = 0.0
                 row = idx // width  
                 col = idx % width
 
