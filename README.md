@@ -17,9 +17,6 @@
 2. 放入 MCDR 的 `plugins` 文件夹
 3. 确保已安装 `minecraft_data_api` 插件
 
-## 🛠️ 命令说明
-...（你的命令说明）
-
 🎮 一个基于MCDReforged的插件，提供强大的Carpet假人批量操作功能
 
 ![License](https://img.shields.io/badge/License-GPLv3-blue)
